@@ -11,8 +11,16 @@ const { i18n } = require("@calcom/config/next-i18next.config");
 export async function getLocaleFromRequest(
   req: NextApiRequest | GetServerSidePropsContext["req"]
 ): Promise<string> {
+  // Allow globally forcing the UI locale if explicitly configured. This grants
+  // self-hosted deployments a simple way to keep Cal.com UI consistent across
+  // browser locales.
+  if (process.env.NEXT_PUBLIC_FORCE_LOCALE) {
+    return process.env.NEXT_PUBLIC_FORCE_LOCALE;
+  }
   const session = await getServerSession({ req });
-  if (session?.user?.locale) return session.user.locale;
+  if (session?.user?.locale) {
+    return session.user.locale;
+  }
   let preferredLocale: string | null | undefined;
   if (req.headers["accept-language"]) {
     preferredLocale = parser.pick(i18n.locales, req.headers["accept-language"], {

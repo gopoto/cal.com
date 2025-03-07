@@ -27,6 +27,14 @@ export const getLocale = async (
         headers: ReadonlyHeaders;
       }
 ): Promise<string> => {
+  // Allow globally forcing the UI locale if explicitly configured. This grants
+  // self-hosted deployments a simple way to keep Cal.com UI consistent across
+  // browser locales (e.g. when custom booking form fields have been authored in a
+  // single language). If NEXT_PUBLIC_FORCE_LOCALE is set, short-circuit locale
+  // detection.
+  if (process.env.NEXT_PUBLIC_FORCE_LOCALE) {
+    return process.env.NEXT_PUBLIC_FORCE_LOCALE;
+  }
   const token = await getToken({
     req: req as GetTokenParams["req"],
   });
